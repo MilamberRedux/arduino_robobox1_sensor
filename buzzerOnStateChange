@@ -1,0 +1,90 @@
+int ledPin=5;
+int buzzPin=6;
+int inputPin=2;
+int pirState= LOW;
+int currentState=LOW;
+int lastState=LOW;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(ledPin,OUTPUT); //définition de la broche de la led comme une sortie
+  pinMode(inputPin,INPUT);
+  pinMode(buzzPin,OUTPUT); //définition de la broche du buzzer comme une sortie
+
+}
+
+boolean hasStateChanged(int currentState){
+   if(currentState != lastState){
+      lastState=currentState;
+      return true;
+   }else{
+      return false;
+   }
+}
+
+void joueLumiere(int ms=350){
+  digitalWrite(ledPin,HIGH);    
+  delay(ms);
+  digitalWrite(ledPin,LOW);
+}
+
+void joueSon(long duree,int frequence){
+  duree*=1000;
+  int periode=(1.0/frequence)*1000000;
+  long temps_passe=0;
+
+  while(temps_passe<duree){
+    digitalWrite(buzzPin,HIGH);
+    delayMicroseconds(periode/2);
+    digitalWrite(buzzPin,LOW);
+    delayMicroseconds(periode/2);
+    temps_passe=temps_passe+periode;
+  }
+}
+
+void joueSonEtLumiere(long duree,int frequence){
+  duree*=1000;
+  int periode=(1.0/frequence)*1000000;
+  long temps_passe=0;
+  digitalWrite(ledPin,HIGH);
+  
+  while(temps_passe<duree){
+    digitalWrite(buzzPin,HIGH);
+    delayMicroseconds(periode/2);
+    digitalWrite(buzzPin,LOW);
+    delayMicroseconds(periode/2);
+    temps_passe=temps_passe+periode;
+  }
+  digitalWrite(ledPin,LOW);
+}
+
+void executeOnStateUp(){
+ joueSonEtLumiere(200,9000);
+ //joueLumiere(800);
+}
+
+void executeOnStateDown(){
+  joueLumiere(250);
+}  
+  
+void executeOnStateChange(int currentState){
+   if(currentState==HIGH){
+      executeOnStateUp();
+   }else{
+      executeOnStateDown();
+   }
+}
+
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  currentState=digitalRead(inputPin);
+
+  if(hasStateChanged(currentState)){
+    //changement d'état
+    executeOnStateChange(currentState);
+   }
+
+  
+}
